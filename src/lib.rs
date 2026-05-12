@@ -242,7 +242,7 @@ impl BoundingBox {
     ```
     use bounding_box::BoundingBox;
 
-    let verts = vec![
+    let points = vec![
         [1.0, 0.0],
         [-5.0, 2.0],
         [3.0, -12.3],
@@ -251,23 +251,25 @@ impl BoundingBox {
         [1.0, -6.0],
     ];
 
-     let bb = BoundingBox::from_points(verts.into_iter()).expect("iterator yields at least one elment");
+     let bb = BoundingBox::from_points(points.into_iter()).expect("iterator yields at least one elment");
      assert_eq!(bb.xmin(), -5.0);
      assert_eq!(bb.xmax(), 7.0);
      assert_eq!(bb.ymin(), -12.3);
      assert_eq!(bb.ymax(), 11.0);
      ```
      */
-    pub fn from_points<'a, T: Into<[f64; 2]>, I: Iterator<Item = T>>(mut verts: I) -> Option<Self> {
-        match verts.next() {
+    pub fn from_points<'a, T: Into<[f64; 2]>, I: Iterator<Item = T>>(
+        mut points: I,
+    ) -> Option<Self> {
+        match points.next() {
             Some(pt) => {
                 let pt: [f64; 2] = pt.into();
                 let mut xmin = pt[0];
                 let mut xmax = pt[0];
                 let mut ymin = pt[1];
                 let mut ymax = pt[1];
-                for vert in verts {
-                    let pt: [f64; 2] = vert.into();
+                for pt in points {
+                    let pt: [f64; 2] = pt.into();
                     if pt[0] > xmax {
                         xmax = pt[0]
                     }
@@ -909,6 +911,24 @@ impl BoundingBox {
      */
     pub fn height(&self) -> f64 {
         return self.ymax - self.ymin;
+    }
+
+    /**
+    Returns the area of the bounding box.
+
+    This is the product of [`BoundingBox::height`] times [`BoundingBox::width`].
+
+    # Examples
+    ```
+    use bounding_box::BoundingBox;
+
+    let bb = BoundingBox::new(-1.0, 1.0, 2.0, 7.0);
+    assert_eq!(bb.area(), 10.0);
+    assert_eq!(bb.height() * bb.width(), bb.area());
+    ```
+     */
+    pub fn area(&self) -> f64 {
+        return self.height() * self.width();
     }
 
     /**
